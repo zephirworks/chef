@@ -140,9 +140,13 @@ class Cookbooks < Application
     raise NotFound, "Cookbook #{cookbook_name} version #{cookbook_version} does not contain a file with checksum #{checksum}" unless cookbook.checksums.keys.include?(checksum)
 
     begin
-      filename = Chef::Checksum.new(checksum).storage.file_location
+      storage = Chef::Checksum.new(checksum).storage
 
-      send_file(filename)
+      if storage.respond_to?(:file_location)
+        send_file(storage.file_location)
+      else
+        storage.retrieve
+      end
     rescue Errno::ENOENT => e
       raise InternalServerError, "File with checksum #{checksum} not found in the repository (this should not happen)"
     end
