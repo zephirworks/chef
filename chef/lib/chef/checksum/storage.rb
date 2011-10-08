@@ -16,3 +16,4 @@
 # limitations under the License.
 
 require 'chef/checksum/storage/filesystem'
+require 'chef/checksum/storage/fog'

@@ -23,3 +23,7 @@ group :test do
   gem "webrat"
   gem "webrat-rspec-rails"
 end
+
+group :fog do
+  gem "fog"
+end
