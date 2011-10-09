@@ -20,8 +20,21 @@ Bundler.require 'fog'
 class Chef
   class Checksum
     class Storage
+      #
+      # A backend for Chef::Checksum::Storage that uses the Fog gem to store
+      # files on S3, Rackspace or any other storage service supported by Fog.
+      #
+      # To use this backend you need to add your service details and credentials
+      # to your Chef server configuration file (e.g. /etc/chef/server.rb).
+      #
+      # For example, to configure the backend to use S3:
+      #
+      #   checksum_path :provider => 'AWS',
+      #                 :aws_access_key_id => '<your access key>',
+      #                 :aws_secret_access_key => '<your secret key>',
+      #                 :directory => '<your bucket name>')
+      #
       class Fog
-          # @fog = ::Fog::Storage.new(:provider => 'AWS', :aws_access_key_id => '44CF9590006BF252F707', :aws_secret_access_key => 'OtxrzxIsfpFjA7SwPzILwy8Bw21TLhquhboDYROV', :host => 'prova.dev', :port => '3002', :scheme => 'http')
         def initialize(config, checksum)
           @config = config.dup
           @dir = @config.delete(:directory)
