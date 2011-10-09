@@ -17,3 +17,20 @@
 
 require 'chef/checksum/storage/filesystem'
 require 'chef/checksum/storage/fog'
+
+class Chef
+  class Checksum
+    class Storage
+      class << self
+        def for(checksum)
+          config = Chef::Config.checksum_path
+          if config.is_a?(Hash) && config.has_key?(:provider)
+            Storage::Fog.new(config, checksum)
+          else
+            Storage::Filesystem.new(config, checksum)
+          end
+        end
+      end
+    end
+  end
+end

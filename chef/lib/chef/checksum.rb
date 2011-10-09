@@ -62,7 +62,7 @@ class Chef
       @create_time = Time.now.iso8601
       @checksum = checksum
       @original_committed_file_location = nil
-      @storage = Storage::Filesystem.new(Chef::Config.checksum_path, checksum)
+      @storage = Storage.for(checksum)
     end
     
     def to_json(*a)
