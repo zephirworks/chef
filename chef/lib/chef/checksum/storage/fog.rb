@@ -21,9 +21,13 @@ class Chef
   class Checksum
     class Storage
       class Fog
-        def initialize(base_dir, checksum)
-          @fog = ::Fog::Storage.new(:provider => 'AWS', :aws_access_key_id => '44CF9590006BF252F707', :aws_secret_access_key => 'OtxrzxIsfpFjA7SwPzILwy8Bw21TLhquhboDYROV', :host => 'prova.dev', :port => '3002', :scheme => 'http')
-          @directory = @fog.directories.get('chef')
+          # @fog = ::Fog::Storage.new(:provider => 'AWS', :aws_access_key_id => '44CF9590006BF252F707', :aws_secret_access_key => 'OtxrzxIsfpFjA7SwPzILwy8Bw21TLhquhboDYROV', :host => 'prova.dev', :port => '3002', :scheme => 'http')
+        def initialize(config, checksum)
+          config = config.dup
+          dir = config.delete(:directory)
+          @fog = ::Fog::Storage.new(config)
+          @directory = @fog.directories.get(dir)
+          raise "Bad" unless @directory
           @checksum = checksum
         end
 
