@@ -23,31 +23,39 @@ class Chef
       class Fog
           # @fog = ::Fog::Storage.new(:provider => 'AWS', :aws_access_key_id => '44CF9590006BF252F707', :aws_secret_access_key => 'OtxrzxIsfpFjA7SwPzILwy8Bw21TLhquhboDYROV', :host => 'prova.dev', :port => '3002', :scheme => 'http')
         def initialize(config, checksum)
-          config = config.dup
-          dir = config.delete(:directory)
-          @fog = ::Fog::Storage.new(config)
-          @directory = @fog.directories.get(dir)
-          raise "Bad" unless @directory
+          @config = config.dup
+          @dir = @config.delete(:directory)
           @checksum = checksum
         end
 
+        attr_accessor :directory
+        def directory
+          return @directory if @directory
+
+          @fog ||= ::Fog::Storage.new(@config)
+          @directory = @fog.directories.get(@dir)
+          raise "Bad" unless @directory
+
+          @directory
+        end
+
         def to_s
-          "fog #{@directory.key} #{@checksum}"
+          "fog #{directory.key} #{@checksum}"
         end
 
         def commit(sandbox_file)
-          @directory.files.create(:key => @checksum, :body => File.read(sandbox_file))
+          directory.files.create(:key => @checksum, :body => File.read(sandbox_file))
           FileUtils.rm(sandbox_file)
         end
 
         def revert(original_committed_file_location)
           File.open(original_committed_file_location, "w") do |file|
-            file.write @directory.files.get(@checksum).body
+            file.write directory.files.get(@checksum).body
           end
         end
 
         def retrieve
-          ret = @directory.files.get(@checksum)
+          ret = directory.files.get(@checksum)
           raise Errno::ENOENT unless ret
           ret.body
         end
@@ -56,7 +64,7 @@ class Chef
         # Purging the checksums is how users can get back to a valid state if
         # they've deleted files, so we silently swallow Errno::ENOENT here.
         def purge
-          @directory.files.destroy(@checksum)
+          directory.files.destroy(@checksum)
         rescue Excon::Errors::NotFound
           true
         end
