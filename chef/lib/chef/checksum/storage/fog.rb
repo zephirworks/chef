@@ -47,7 +47,7 @@ class Chef
 
           @fog ||= ::Fog::Storage.new(@config)
           @directory = @fog.directories.get(@dir)
-          raise "Bad" unless @directory
+          raise "You must specify a :directory parameter" unless @directory
 
           @directory
         end
